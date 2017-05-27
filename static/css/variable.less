@@ -1,0 +1,86 @@
+.flex {
+    display: flex
+}
+
+.center {
+    //绝对居中
+    .flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+.v-center {
+    // 子元素竖直排列,并水平居中
+    .flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+}
+
+.h-center {
+    // 垂直居中
+    .flex;
+    align-items: center;
+}
+
+.line-2 {
+    //文字两行排列
+    display: box;
+    box-orient: vertical;
+    -webkit-column-count: 2;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.space-around {
+    //两端对齐，两端有空隙
+    .flex;
+    align-items: center;
+    justify-content: space-around;
+}
+
+.space-between {
+    //两端对齐，两端无空隙
+    .flex;
+    align-items: center;
+    justify-content: space-between;
+}
+.borderbox{
+  box-sizing:border-box;
+}
+@c1:#ff6600;
+@c2:#a5a5a5;
+@c3:#555;
+@c4:#eff3f5;
+@c5:#e2e4e6;
+@c6:#9d9d9d;
+.c1(@c:#ff6600){
+  color:@c;
+};  //橙色
+.c2(@c:#a5a5a5){
+  color:@c;
+};  //灰色边框
+.c3(@c:#555){
+    color:@c; //灰色字
+}
+.c4(@c:#eff3f5){
+  color:@c;
+};  //背景灰
+
+.fs24(@fs:0.64rem){
+    font-size:@fs;
+    transform:scale(0.5) translate(50%,0);
+    position:absolute;
+}
+.fs28(@fs:0.373333rem){
+    font-size:@fs;
+}
+.fs30(@fs:0.4rem){
+    font-size:@fs;
+}
+.fs32(@fs:0.426667rem){
+    font-size:@fs;
+}
+
+
