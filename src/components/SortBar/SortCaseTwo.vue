@@ -7,6 +7,10 @@
 </div>
 </template>
 <script>
+import {
+    mapGetters,
+    mapMutations
+} from 'vuex';
 export default {
   props:{
     value:[String,Object],
@@ -57,6 +61,7 @@ export default {
               
   },
   methods:{
+     ...mapMutations(['updateText']),
     handleSelectOne(e){
       if(e.target.tagName=='LI'){
         var firstCode=e.target.dataset.firstcode;
@@ -76,7 +81,7 @@ export default {
            }
            this.$emit('input',secondCode);
            let text=['全部','维修','保养','美容','洗车'];
-           this.$emit('on-change',text[this.selectedOne])
+           this.updateText('two',text[this.selectedOne])
 
       }
   },

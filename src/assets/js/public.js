@@ -180,15 +180,15 @@ const Colin={
                 function locate(){   //定位
                      Locate.sessionLocation(function(res,cityName,cityCode,lng,lat){
                         if(lat&&lng){
-                            updateUserInfo({login:res.login,navigation:true,cityCode:cityCode,cityName:cityName,lng:lng,lat:lat})
+                            updateUserInfo({login:res.login,cityCode:cityCode,cityName:cityName,lng:lng,lat:lat})
                         }else{
-                            updateUserInfo({login:res.login,cityName:cityName,selectCityCode:cityCode,navigation:false})
+                            updateUserInfo({login:res.login,cityName:cityName,selectCityCode:cityCode})
                         }
                         
                     });    
                 }
                 function updateUserInfo(options){
-                     vm.updateUserInfo(options)   
+                     vm.updateUserInfo(Object.assign({located:true},options))   
                     //存储登陆状态
                     reslove(options)                 
                 }                

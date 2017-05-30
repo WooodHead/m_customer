@@ -1,21 +1,21 @@
 <template>
 <div class="sort-bar">
      <ul class="sort-menu space-between" >
-         <li class="center" @click="handleSelect(1)" :class="{'active':selectedItem==1}"><span>{{oneText}}</span><i></i></li>
-         <li class="center" @click="handleSelect(2)" :class="{'active':selectedItem==2}"><span>{{twoText}}</span><i></i></li>
-         <li class="center" @click="handleSelect(3)" :class="{'active':selectedItem==3}"><span>{{threeText}}</span><i></i></li>
+         <li class="center" @click="handleSelect(1)" :class="{'active':selectedItem==1}"><span>{{text.one}}</span><i></i></li>
+         <li class="center" @click="handleSelect(2)" :class="{'active':selectedItem==2}"><span>{{text.two}}</span><i></i></li>
+         <li class="center" @click="handleSelect(3)" :class="{'active':selectedItem==3}"><span>{{text.three}}</span><i></i></li>
          <li class="center" @click="handleSelect(4)" :class="{'active':selectedItem==4}"><span>筛选</span><i></i></li>
      </ul>
      <keep-alive>
-         <SortCaseOne v-show="selectedItem==1" :userInfo="userInfo" :fisrtLevelList="oneSortData.fisrtLevelList" :secondLevelList="oneSortData.secondLevelList" @first-change="handleOneChange" v-model="selectVal1" @on-change="handleOneChangeText"></SortCaseOne>
+         <SortCaseOne v-show="selectedItem==1" :userInfo="userInfo" :fisrtLevelList="oneSortData.fisrtLevelList" :secondLevelList="oneSortData.secondLevelList" @first-change="handleOneChange" v-model="selectVal1"></SortCaseOne>
          </keep-alive>
      <keep-alive>
-         <SortCaseTwo v-show="selectedItem==2" ref="sortCaseTwo" :fisrtLevelList="twoSortData.fisrtLevelList" :secondLevelList="twoSortData.secondLevelList" @first-change="handleTwoChange" v-model="selectVal2" @on-change="handleTwoChangeText">
+         <SortCaseTwo v-show="selectedItem==2" ref="sortCaseTwo" :fisrtLevelList="twoSortData.fisrtLevelList" :secondLevelList="twoSortData.secondLevelList" @first-change="handleTwoChange" v-model="selectVal2">
            <keep-alive><CarType v-if="isShowCarType" v-model='carTypeVal'></CarType></keep-alive>
          </SortCaseTwo>
      </keep-alive>
      <keep-alive>
-         <SortCaseThree v-show="selectedItem==3" ref="sortCaseThree" v-model="selectVal3" :list="threeSortData" @on-change="handleThreeChangeText"></SortCaseThree>
+         <SortCaseThree v-show="selectedItem==3" ref="sortCaseThree" v-model="selectVal3" :list="threeSortData"></SortCaseThree>
      </keep-alive>
      <keep-alive>
          <SortCaseFour v-show="selectedItem==4" ref="sortCaseFour" v-model="selectVal4" :list="fourSortData"></SortCaseFour>
@@ -30,6 +30,10 @@ import SortCaseFour from './SortCaseFour.vue';
 import Colin from '../../assets/js/public.js';
 import Common from '../../assets/js/common.js';
 import CarType from './CarType.vue';
+import {
+    mapGetters,
+    mapMutations
+} from 'vuex';
 export default {
   props:['userInfo'],
   components:{SortCaseOne,SortCaseTwo,SortCaseThree,SortCaseFour,CarType},
@@ -97,17 +101,18 @@ export default {
        selectVal2:'',
        selectVal3:'',
        selectVal4:'',
-       oneText:'全部区域',
-       twoText:'全部',
-       threeText:'智能排序',
        carTypeVal:'',
        garageList:[],
        garageServiceCode:''
     }
   },
+  computed:{
+      ...mapGetters(['text'])
+  },
   mounted(){
+     
      this.$on('init',()=>{
-       this.twoText='全部';
+       this.updateText({two:"全部"})
        this.handleTwoChange(0) 
        this.init();   
      })
@@ -117,6 +122,7 @@ export default {
      this.$on('change',(data)=>{
         let _data=data.data;
         this.oneText=_data.cityName;
+        this.updateText({one:"附近"})
         this.selectVal1={areaType:'03',countyCode:_data.cityCode,areaCode:''};
      })
      this.$on('changeText',(data)=>{
@@ -129,14 +135,15 @@ export default {
     
   },
   methods:{
+     ...mapMutations(['updateText']),
      init(){
       //切换城市或初始化
         this.oneSortData=[]; //oneSortData依赖请求更新，需先清除
         this.oneData=[{
           cityName:'全部区域',cityCode:'',
          }];
-        this.oneText="全部区域";
-        this.threeText='智能排序';
+
+        this.updateText({one:"全部区域",three:"智能排序"})
         this.$refs.sortCaseTwo.$emit('reset',true)
         this.$refs.sortCaseThree.$emit('reset',true)
         this.$refs.sortCaseFour.$emit('reset',true)
@@ -147,7 +154,7 @@ export default {
             };
             var insuranceCompanyList=[];
             if(!this.userInfo.selectCityCode || this.userInfo.selectCityCode===this.userInfo.cityCode){
-              this.oneText="附近";
+              this.updateText({one:"附近"})
               this.oneData.unshift(this.oneDataDefault)
               if(this.threeSortData.length<5)this.threeSortData.splice(1,0,this.threeDataDefault);          
             }else{
@@ -231,16 +238,6 @@ export default {
 
 
          this.twoSortData.secondLevelList=secondLevelList;        
-    },
-    handleOneChangeText(text){
-       this.oneText=text;
-    },
-    handleTwoChangeText(text){
-      if(this.text!=="请选择服务品牌")this.twoText=text;
-    },
-    handleThreeChangeText(text){
-       this.threeText=text;
-      
     }
   },
   watch:{

@@ -61,21 +61,7 @@ export default {
             sortStatus:false,
             selectedVal: '',
             defaultCityCode: '',
-            postData: {
-                areaCode: "",
-                areaMeter: "",
-                areaType: "",
-                countyCode: "",
-                filterCompany: "",
-                filterCooperate: "",
-                filterFacility: "",
-                filterShop: "",
-                garageServiceCode: "",
-                garageServiceItemCode: "",
-                page: 1,
-                sortType: "01",
-                trademarkId: "",
-            },
+            postData: {},
             garageList: [],
         }
     },
@@ -86,20 +72,85 @@ export default {
         }
     },
     mounted() {
-        this.showMap=this.$route.name==='shopListMap'?true:false;
-        if(this.userInfo.selectCityCode && this.userInfo.selectCityCode!=this.userInfo.cityCode){
-            this.postData.areaType="02"
+        let garageServiceCode=this.$route.query.id;
+        let cityCode=this.userInfo.selectCityCode || this.userInfo.cityCode;
+        this.handlePostDataInit()   //初始化请求参数      
+        if(this.userInfo.located){
+           this.defaultCityCode = cityCode;
+           this.$refs.sortBar.$emit('init', true);
         }else{
-            this.postData.areaMeter="5000"
+             this.$on('getCurrentSessionInfo', (res) => {                //等待定位回调
+                this.defaultCityCode = res.cityCode;
+                this.$refs.sortBar.$emit('init', true);
+                if(garageServiceCode)this.postData.garageServiceCode=garageServiceCode;
+                this.showMap?this.$refs.child.$emit('init', true):'';
+            })       
         }
+
+
+
+
         this.$on('inited', () => {   //筛选列表加载完毕
-            //console.log(3)
-            let garageServiceCode=this.$route.query.id;
-            if(this.isFirst){
-                //console.log(4)
-                this.handleInit();
-            }else{         
-                let postData={
+                this.handlePostDataInit();
+                this.handleInit('reset');
+        })
+        this.$on('areaClick',(data)=>{
+            this.$refs.sortBar.$emit('change',data)
+        })
+        this.isFirst=false;
+    },
+    beforeRouteUpdate(to,from,next){
+       this.$refs.sortBar.$emit('hide',true)  //如果筛选列表已开启，隐藏筛选列表
+       if(to.name==='shopListMap'){
+           this.showMap=true;
+       }else{
+         this.showMap=false
+       }
+       if(from.name==='shopListMap'){
+            if(this.sortStatus){
+              this.sortStatus=false;
+              this.showLoading = true;
+              this.handleLoadMore('reset')          
+           }       
+       }
+       next()
+    },
+    activated() {
+        if(!this.isFirst){
+        let garageServiceCode=this.$route.query.id;
+        let flag=false;
+        let cityCode=this.userInfo.selectCityCode || this.userInfo.cityCode;          
+
+            if(garageServiceCode && this.postData.garageServiceCode!=garageServiceCode){  //从首页菜单进入
+                this.postData.garageServiceCode=garageServiceCode;
+                flag=true;    
+                   
+            }
+            if (this.userInfo.selectCityCode) {    
+                if (this.userInfo.selectCityCode != this.defaultCityCode) {  //选择城市和已默认城市不一样
+                    this.defaultCityCode = this.userInfo.selectCityCode;   
+                    flag=true;     
+                }
+            } else if (this.userInfo.cityCode) {
+                if (this.userInfo.cityCode != this.defaultCityCode) {   //定位城市和已默认城市不一样
+                    this.defaultCityCode = this.userInfo.cityCode;   
+                    flag=true;
+                }
+            }
+             if(flag)this.reset();   //重载
+       }
+      
+       
+        this.$refs.sortBar.$emit('hide',true)   //隐藏筛选列表
+        this.updateTabIndex('shopList')
+        this.$refs.scroller.reset()
+    },
+
+    methods: {
+        ...mapMutations(['updateTabIndex','updateAreaReset']),
+        handlePostDataInit(){
+                  let garageServiceCode=this.$route.query.id;
+                  let postData={
                         areaCode: "",
                         areaMeter: "",
                         areaType: "",
@@ -117,91 +168,13 @@ export default {
                 if(garageServiceCode){
                      postData.garageServiceCode=garageServiceCode; 
                  }            
-
-
                 if(this.userInfo.selectCityCode && this.userInfo.selectCityCode!=this.userInfo.cityCode){
-                    
                     postData.areaType="02"
                 }else{
-                    
                     postData.areaMeter="5000"
                 }
-                this.postData=postData;
-                this.handleInit('reset');
-            }
-            this.isFirst ? this.isFirst = false : '';
-        })
-        this.$on('areaClick',(data)=>{
-            this.$refs.sortBar.$emit('change',data)
-        })
-    },
-    beforeRouteUpdate(to,from,next){
-       this.$refs.sortBar.$emit('hide',true)
-       if(to.name==='shopListMap'){
-           this.showMap=true;
-       }else{
-         this.showMap=false
-       }
-       if(from.name==='shopListMap'){
-            if(this.sortStatus){
-              this.sortStatus=false;
-              this.showLoading = true;
-              this.handleLoadMore('reset')          
-           }       
-       }
-
-       next()
-    },
-    activated() {
-        let garageServiceCode=this.$route.query.id;
-        let flag=false;
-        let cityCode=this.userInfo.selectCityCode || this.userInfo.cityCode;        
-        if(this.isFirst && !cityCode){
-        
-            this.$on('getCurrentSessionInfo', (res) => {  
-                                
-                this.defaultCityCode = res.cityCode;
-                this.$refs.sortBar.$emit('init', true);
-                if(garageServiceCode)this.postData.garageServiceCode=garageServiceCode;
-                this.showMap?this.$refs.child.$emit('init', true):'';
-            })
-        }else{           
-            if(garageServiceCode && this.postData.garageServiceCode!=garageServiceCode){
-                this.postData.garageServiceCode=garageServiceCode;
-                flag=true;    
-                   
-            }
-            if (this.userInfo instanceof Object && this.userInfo.selectCityCode) {
-                if (this.userInfo.selectCityCode != this.defaultCityCode) {
-          
-                    this.defaultCityCode = this.userInfo.selectCityCode;   
-                    flag=true;     
-                }
-            } else if (this.userInfo instanceof Object && this.userInfo.cityCode) {
-
-                if (this.userInfo.cityCode != this.defaultCityCode) {
-          
-                    this.defaultCityCode = this.userInfo.cityCode;   
-                    flag=true;
-                }
-                
-            }
-
-            if(flag)reset();
-       }
-                
-                          
-
-            
-       
-        this.$refs.sortBar.$emit('hide',true)
-        this.updateTabIndex('shopList')
-        this.$refs.scroller.reset()
-        
-    },
-
-    methods: {
-        ...mapMutations(['updateTabIndex','updateAreaReset']),
+                this.postData=postData;     
+        },
         handleInit(type) {
             this.handleLoadMore(type)
         },
@@ -209,10 +182,10 @@ export default {
             this.handleInit();
         },
         reset(){
-                this.garageList=[]
+                this.garageList=[];
                 this.showLoading = true;
                 this.showNoData=false;
-                this.$refs.sortBar.$emit('init', true)
+                this.$refs.sortBar.$emit('init', true)   //发送列表重新请求
 
                 switch(garageServiceCode) {
                     case '01':

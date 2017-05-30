@@ -5,6 +5,10 @@
 
 </template>
 <script>
+import {
+    mapGetters,
+    mapMutations
+} from 'vuex';
     export default{
         props:{
             list:{
@@ -26,12 +30,13 @@
           this.selectedVal=this.list[0].val
         },
         methods:{
+            ...mapMutations(['updateText']),
             handleSelect(e){
                 var id=e.target.dataset.id||'';
                 var text=e.target.dataset.text || '';
                 this.selectedVal==id?id='repeat'+Math.random():this.selectedVal=id;
                 this.$emit('input',id);
-                this.$emit('on-change',text)           
+                this.updateText('three',text)           
             }
         }
     }

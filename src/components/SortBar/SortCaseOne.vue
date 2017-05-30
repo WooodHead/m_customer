@@ -6,6 +6,10 @@
 </div>
 </template>
 <script>
+import {
+    mapGetters,
+    mapMutations
+} from 'vuex';
 export default {
   props:{
     value:[String,Number,Object],
@@ -36,6 +40,7 @@ export default {
 
   },
   methods:{
+    ...mapMutations(['updateText']),
     handleSelectOne(e){
       if(e.target.tagName=='LI'){
         var firstCode=e.target.dataset.firstcode;
@@ -49,7 +54,7 @@ export default {
            JSON.stringify(this.selectedTwo)==JSON.stringify(secondCode)?secondCode='repeat'+Math.random():secondCode===''?secondCode='empty'+Math.random():this.selectedTwo=secondCode;  //此处做了些SB判断，早知道写两个组件了
            
            this.$emit('input',secondCode)
-           this.$emit('on-change',text)
+           this.updateText('one',text)
            
     }
   },

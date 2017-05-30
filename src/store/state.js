@@ -4,5 +4,5 @@ export const state={
     history:[],
     userInfo:Colin.getSS('userInfo')||{},
     tabIndex:'',
-    areaReset:false
+    areaReset:false,
 }

@@ -289,51 +289,49 @@ export default {
     },
     activated() {
         this.handleInit();     
-        this.isFirst ? this.isFirst = false : '';
+        this.isFirst=false;
     },
     methods: {
     	...mapMutations(['updateUserInfo','updateAreaReset']),
     	handleInit(){
- 
-    		if(this.userInfo instanceof Object && this.userInfo.selectCityCode){
-    			if(this.defaultCityCode!=this.userInfo.selectCityCode){
-                    this.resetArea=false;
-    				this.defaultCityCode=this.userInfo.selectCityCode;
-                    if(this.userInfo.selectCityCode==this.userInfo.cityCode){
-                        this.handleLocated()
-                    }else{
-    				    this.handleSelectArea();
-                    }
-    			}
+    	        if(this.userInfo instanceof Object && this.userInfo.selectCityCode){  
+    	            if(this.defaultCityCode!=this.userInfo.selectCityCode){    //选择城市和默认城市不一致
+                            this.resetArea=false;
+            	      this.defaultCityCode=this.userInfo.selectCityCode;
+                            if(this.userInfo.selectCityCode==this.userInfo.cityCode){   //选择城市和定位城市一致
+                                  this.handleLocated()    //开启点定位
+                            }else{
+            		 this.handleSelectArea();    //开启区域定位
+                            }
+                       }
                
-	        }else if(this.userInfo instanceof Object && this.userInfo.cityCode){
+	        }else if(this.userInfo instanceof Object && this.userInfo.cityCode){    
 	        	if(this.defaultCityCode!=this.userInfo.cityCode){
-                    this.resetArea=false;
-	        		this.defaultCityCode=this.userInfo.cityCode;
-	        		this.handleLocated()
+                            this.resetArea=false;   
+	        	      this.defaultCityCode=this.userInfo.cityCode;
+	        	      this.handleLocated()
 	        	}
 	           
 	        }
 
-            if(this.areaReset && this.resetArea){
-               this.markerPosition.visible=false;
-               this.$set(this.markerDirection,'visible',false);
-               this.handleSelectArea();
-               this.resetArea=false;
-               this.updateAreaReset()
-            }
-            this.resetArea=true;
+                if(this.areaReset && this.resetArea){
+                   this.markerPosition.visible=false;
+                   this.$set(this.markerDirection,'visible',false);
+                   this.handleSelectArea();
+                   this.resetArea=false;
+                   this.updateAreaReset()
+                }
+                this.resetArea=true;
     	},
-        handleReset(){
-           this.garageList=[];
-           this.markersArea=[];
-           this.markers=[];
-           this.circles=[];
-           this.infoPannelShow=false;
-           this.garagePannelShow=false;
-           this.searchGarage=false;
-
-        },
+            handleReset(){
+               this.garageList=[];
+               this.markersArea=[];
+               this.markers=[];
+               this.circles=[];
+               this.infoPannelShow=false;
+               this.garagePannelShow=false;
+               this.searchGarage=false;
+            },
     	handleLocated(){
             this.handleReset();
             this.zoom=14;
